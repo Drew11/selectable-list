@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Selectable list</title>
+    <style>
+        .selected--item{
+            background-color: greenyellow;
+        }
+        .overOnLi{
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+Клик на элементе выделяет только его.
+<br> Ctrl(Cmd)+Клик добавляет/убирает элемент из выделенных.
+<br> Shift+Клик добавляет промежуток от последнего кликнутого к выделению.
+<br>
+
+<ul>
+    <li>Кристофер Робин</li>
+    <li>Винни-Пух</li>
+    <li>Ослик Иа</li>
+    <li>Мудрая Сова</li>
+    <li>Кролик. Просто кролик.</li>
+</ul>
+<button class="getSelected">getSelected()</button>
+<script>
+    'use strict';
+
+    class ListSelected {
+        constructor({root}) {
+
+            this.root = root;
+            this._addEventOnLi();
+        }
+
+        _addEventOnLi() {
+            this.root.onmouseover = this.root.onmouseout = setMouseOverStyle;
+            let selected;
+            const selectedElements = [];
+
+            function setMouseOverStyle(event) {
+                if (event.target.tagName === 'LI') {
+                    event.target.classList.add('overOnLi');
+                }
+                if (event.type === 'mouseout') {
+                    event.target.classList.remove('overOnLi');
+                }
+            }
+
+            function setLiClickedStyle(event) {
+
+                if (event.target.tagName !== 'LI') {
+                    return;
+                }
+                if(event.ctrlKey){
+                    selected = event.target;
+                    selectedElements.push(selected);
+                }
+                if(!event.ctrlKey && selectedElements.length>0){
+                    selectedElements.forEach((currentEl)=>{
+                        currentEl.classList.remove('selected--item');
+                    });
+                    console.log(selectedElements)
+                    selectedElements.length=0;
+                    console.log(selectedElements)
+                }
+                if (selected) {
+                    selected.classList.remove('selected--item');
+                    const index  = selectedElements.indexOf(selected);
+                    selectedElements.splice(index,1);
+                }
+                selected = event.target;
+                selectedElements.push(selected);
+                event.target.classList.add('selected--item');
+
+            }
+
+            this.root.addEventListener(event, setMouseOverStyle);
+            this.root.addEventListener('click', setLiClickedStyle);
+        }
+
+        getSelected(){
+            const selected = document.querySelectorAll('.selected--item');
+            return selected.forEach(function (currentSelectedEl) {
+                console.log(currentSelectedEl.innerText);
+            })
+        }
+    }
+
+
+    const listSelect = new ListSelected({
+        root: document.querySelector('ul')
+    });
+    const btn  = document.querySelector('.getSelected');
+    btn.addEventListener('click', listSelect.getSelected);
+
+</script>
+</body>
+</html>
