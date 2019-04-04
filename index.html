@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Selectable list</title>
+    <title>Title</title>
     <style>
         .selected--item{
             background-color: greenyellow;
@@ -35,12 +35,12 @@
 
             this.root = root;
             this._addEventOnLi();
-        }
 
+        }
         _addEventOnLi() {
             this.root.onmouseover = this.root.onmouseout = setMouseOverStyle;
             let selected;
-            const selectedElements = [];
+            let selectedElements = [];
 
             function setMouseOverStyle(event) {
                 if (event.target.tagName === 'LI') {
@@ -56,27 +56,67 @@
                 if (event.target.tagName !== 'LI') {
                     return;
                 }
-                if(event.ctrlKey){
-                    selected = event.target;
-                    selectedElements.push(selected);
+
+                if(event.shiftKey){
+                    const list = document.querySelectorAll('li');
+                    selected = event.target ;
+                    const firstIndex = getIndex(list, selected);
+                    console.log(firstIndex);
+
+                    [...list].forEach(function (current , index , array) {
+                        let newArr =  array.slice(1, index);
+                        if(selected === current){
+                            selectedElements.push(newArr);
+                        }
+                        newArr.forEach((currentShiftedEl)=>{
+                            currentShiftedEl.classList.add('selected--item');
+                        })
+
+                    });
+                    // if(!selectedElements.includes(selected)){
+                    //
+                    //     selectedElements.push(selected);
+                    // }
                 }
-                if(!event.ctrlKey && selectedElements.length>0){
+                
+
+                if(event.ctrlKey && event.type==='click'){
+                    selected = event.target;
+                    if(selectedElements.includes(selected)){
+                        removingStylesAndEl(selectedElements, selected);
+                        return;
+                    }
+                    if(!selectedElements.includes(selected)){
+                        selectedElements.push(selected);
+                    }
+                }
+                if(!event.ctrlKey) {
                     selectedElements.forEach((currentEl)=>{
                         currentEl.classList.remove('selected--item');
                     });
-                    console.log(selectedElements)
-                    selectedElements.length=0;
-                    console.log(selectedElements)
+                    selectedElements = [];
                 }
+                // }
+                //
+                // if(!event.ctrlKey){
+
                 if (selected) {
-                    selected.classList.remove('selected--item');
-                    const index  = selectedElements.indexOf(selected);
-                    selectedElements.splice(index,1);
+                    removingStylesAndEl(selectedElements, selected);
                 }
                 selected = event.target;
                 selectedElements.push(selected);
                 event.target.classList.add('selected--item');
 
+                console.log(selectedElements)
+            }
+
+            function removingStylesAndEl(array, el) {
+                const index  = array.indexOf(el);
+                array.splice(index,1);
+                el.classList.remove('selected--item');
+            }
+            function  getIndex(list, selected) {
+                return [...list].indexOf(selected);
             }
 
             this.root.addEventListener(event, setMouseOverStyle);
@@ -85,16 +125,15 @@
 
         getSelected(){
             const selected = document.querySelectorAll('.selected--item');
-            return selected.forEach(function (currentSelectedEl) {
-                console.log(currentSelectedEl.innerText);
-            })
+            const res = [...selected].map((currentSelectedEl)=>currentSelectedEl.innerText);
+            return alert(res);
         }
     }
-
 
     const listSelect = new ListSelected({
         root: document.querySelector('ul')
     });
+
     const btn  = document.querySelector('.getSelected');
     btn.addEventListener('click', listSelect.getSelected);
 
