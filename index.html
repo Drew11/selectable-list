@@ -19,7 +19,7 @@
 <br> Shift+Клик добавляет промежуток от последнего кликнутого к выделению.
 <br>
 
-<ul>
+<ul class="first">
     <li>Кристофер Робин</li>
     <li>Винни-Пух</li>
     <li>Ослик Иа</li>
@@ -27,6 +27,16 @@
     <li>Кролик. Просто кролик.</li>
 </ul>
 <button class="getSelected">getSelected()</button>
+
+<ul>
+    <li class="selected--item ">Кристофер Робин</li>
+    <li>Винни-Пух</li>
+    <li>Ослик Иа</li>
+    <li>Мудрая Сова</li>
+    <li>Кролик. Просто кролик.</li>
+</ul>
+
+
 <script>
     'use strict';
 
@@ -39,8 +49,10 @@
         }
         _addEventOnLi() {
             this.root.onmouseover = this.root.onmouseout = setMouseOverStyle;
-            let selected;
-            let selectedElements = [];
+            const list = this.root.children;
+            let selected,
+                indexSelectedEl,
+                selectedElements = [];
 
             function setMouseOverStyle(event) {
                 if (event.target.tagName === 'LI') {
@@ -52,34 +64,32 @@
             }
 
             function setLiClickedStyle(event) {
-
-                if (event.target.tagName !== 'LI') {
+                if (event.target.tagName !== 'LI'){
                     return;
                 }
-
-                if(event.shiftKey){
-                    const list = document.querySelectorAll('li');
+                if (event.shiftKey && event.type==='click'){
                     selected = event.target ;
-                    const firstIndex = getIndex(list, selected);
-                    console.log(firstIndex);
+                    let nextSelectedEl;
+                    let newArr;
 
                     [...list].forEach(function (current , index , array) {
-                        let newArr =  array.slice(1, index);
+                        if(event.type ==='click'){
+                         nextSelectedEl = event.target;
+                         const nextIndexSelectedEl = array.indexOf(nextSelectedEl);
+
+                         if(nextIndexSelectedEl>indexSelectedEl){
+                             newArr  =  array.slice(indexSelectedEl , nextIndexSelectedEl);
+                         }else newArr = array.slice(nextIndexSelectedEl, indexSelectedEl);
+
+                        }
                         if(selected === current){
-                            selectedElements.push(newArr);
+                            selectedElements.push(...newArr);
                         }
                         newArr.forEach((currentShiftedEl)=>{
                             currentShiftedEl.classList.add('selected--item');
                         })
-
                     });
-                    // if(!selectedElements.includes(selected)){
-                    //
-                    //     selectedElements.push(selected);
-                    // }
                 }
-                
-
                 if(event.ctrlKey && event.type==='click'){
                     selected = event.target;
                     if(selectedElements.includes(selected)){
@@ -90,16 +100,12 @@
                         selectedElements.push(selected);
                     }
                 }
-                if(!event.ctrlKey) {
+                if(!event.ctrlKey && !event.shiftKey) {
                     selectedElements.forEach((currentEl)=>{
                         currentEl.classList.remove('selected--item');
                     });
                     selectedElements = [];
                 }
-                // }
-                //
-                // if(!event.ctrlKey){
-
                 if (selected) {
                     removingStylesAndEl(selectedElements, selected);
                 }
@@ -107,7 +113,7 @@
                 selectedElements.push(selected);
                 event.target.classList.add('selected--item');
 
-                console.log(selectedElements)
+                indexSelectedEl = [...list].indexOf(selected);
             }
 
             function removingStylesAndEl(array, el) {
@@ -115,27 +121,27 @@
                 array.splice(index,1);
                 el.classList.remove('selected--item');
             }
-            function  getIndex(list, selected) {
-                return [...list].indexOf(selected);
-            }
 
             this.root.addEventListener(event, setMouseOverStyle);
             this.root.addEventListener('click', setLiClickedStyle);
         }
 
-        getSelected(){
-            const selected = document.querySelectorAll('.selected--item');
+        _getSelected(){
+            const selected = this.root.querySelectorAll('.selected--item');
             const res = [...selected].map((currentSelectedEl)=>currentSelectedEl.innerText);
             return alert(res);
+        }
+        getSelectedItems(){
+            this._getSelected();
         }
     }
 
     const listSelect = new ListSelected({
-        root: document.querySelector('ul')
+        root: document.querySelector('.first')
     });
 
     const btn  = document.querySelector('.getSelected');
-    btn.addEventListener('click', listSelect.getSelected);
+    btn.addEventListener('click',listSelect.getSelectedItems.bind(listSelect));
 
 </script>
 </body>
