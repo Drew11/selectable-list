@@ -82,13 +82,14 @@
                          }else newArr = array.slice(nextIndexSelectedEl, indexSelectedEl);
 
                         }
-                        if(selected === current){
-                            selectedElements.push(...newArr);
+                        if(nextSelectedEl){
+                           selectedElements.push(...newArr);
                         }
-                        newArr.forEach((currentShiftedEl)=>{
+                        selectedElements.forEach((currentShiftedEl)=>{
                             currentShiftedEl.classList.add('selected--item');
                         })
                     });
+                    console.log(selectedElements)
                 }
                 if(event.ctrlKey && event.type==='click'){
                     selected = event.target;
@@ -113,8 +114,11 @@
                 selectedElements.push(selected);
                 event.target.classList.add('selected--item');
 
+                console.log(selectedElements)
+
                 indexSelectedEl = [...list].indexOf(selected);
             }
+
 
             function removingStylesAndEl(array, el) {
                 const index  = array.indexOf(el);
