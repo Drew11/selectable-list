@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
-        .selected--item{
+        .selected--item {
             background-color: greenyellow;
         }
-        .overOnLi{
+
+        .overOnLi {
             cursor: pointer;
         }
     </style>
@@ -28,114 +29,112 @@
 </ul>
 <button class="getSelected">getSelected()</button>
 
-<ul>
-    <li class="selected--item ">Кристофер Робин</li>
+<ul class="second">
+    <li>Кристофер Робин</li>
     <li>Винни-Пух</li>
     <li>Ослик Иа</li>
     <li>Мудрая Сова</li>
     <li>Кролик. Просто кролик.</li>
 </ul>
+<button class="getSelected1">getSelected()</button>
 
 
 <script>
     'use strict';
 
+    let selected,
+        indexSelectedEl,
+        selectedElements = [];
+
+    function setLiClickedStyle(event) {
+        const list = event.target.closest('ul').children;
+
+        if (event.target.tagName !== 'LI') {
+            return;
+        }
+        if (event.shiftKey) {
+            selected = event.target;
+            let nextSelectedEl;
+            let newArr;
+            [...list].forEach(function (current, index, array) {
+                if (event.type === 'click') {
+                    nextSelectedEl = event.target;
+                    const nextIndexSelectedEl = array.indexOf(nextSelectedEl);
+
+                    if (nextIndexSelectedEl > indexSelectedEl) {
+                        newArr = array.slice(indexSelectedEl, nextIndexSelectedEl);
+                    } else newArr = array.slice(nextIndexSelectedEl, indexSelectedEl);
+                }
+                if (nextSelectedEl) {
+                    newArr.forEach((current) => {
+                        selectedElements.push(current);
+                    });
+                }
+                selectedElements.forEach((currentShiftedEl) => {
+                    currentShiftedEl.classList.add('selected--item');
+                })
+            });
+        }
+        if (event.ctrlKey) {
+            selected = event.target;
+            if (selectedElements.includes(selected)) {
+                removingStylesAndEl(selectedElements, selected);
+                return;
+            }
+            if (!selectedElements.includes(selected)) {
+                selectedElements.push(selected);
+            }
+        }
+        if (!event.ctrlKey && !event.shiftKey) {
+            selectedElements.forEach((currentEl) => {
+                currentEl.classList.remove('selected--item');
+            });
+            selectedElements = [];
+        }
+
+        if (selected) {
+            removingStylesAndEl(selectedElements, selected);
+        }
+        selected = event.target;
+        selectedElements.push(selected);
+        event.target.classList.add('selected--item');
+        indexSelectedEl = [...list].indexOf(selected);
+    }
+
+    function removingStylesAndEl(array, el) {
+        const index = array.indexOf(el);
+        array.splice(index, 1);
+        el.classList.remove('selected--item');
+    }
+
+    function setMouseOverStyle(event) {
+        if (event.target.tagName === 'LI') {
+            event.target.classList.add('overOnLi');
+        }
+        if (event.type === 'mouseout') {
+            event.target.classList.remove('overOnLi');
+        }
+    }
+
     class ListSelected {
         constructor({root}) {
-
             this.root = root;
             this._addEventOnLi();
-
         }
+
         _addEventOnLi() {
             this.root.onmouseover = this.root.onmouseout = setMouseOverStyle;
-            const list = this.root.children;
-            let selected,
-                indexSelectedEl,
-                selectedElements = [];
-
-            function setMouseOverStyle(event) {
-                if (event.target.tagName === 'LI') {
-                    event.target.classList.add('overOnLi');
-                }
-                if (event.type === 'mouseout') {
-                    event.target.classList.remove('overOnLi');
-                }
-            }
-
-            function setLiClickedStyle(event) {
-                if (event.target.tagName !== 'LI'){
-                    return;
-                }
-                if (event.shiftKey && event.type==='click'){
-                    selected = event.target ;
-                    let nextSelectedEl;
-                    let newArr;
-
-                    [...list].forEach(function (current , index , array) {
-                        if(event.type ==='click'){
-                         nextSelectedEl = event.target;
-                         const nextIndexSelectedEl = array.indexOf(nextSelectedEl);
-
-                         if(nextIndexSelectedEl>indexSelectedEl){
-                             newArr  =  array.slice(indexSelectedEl , nextIndexSelectedEl);
-                         }else newArr = array.slice(nextIndexSelectedEl, indexSelectedEl);
-
-                        }
-                        if(nextSelectedEl){
-                           selectedElements.push(...newArr);
-                        }
-                        selectedElements.forEach((currentShiftedEl)=>{
-                            currentShiftedEl.classList.add('selected--item');
-                        })
-                    });
-                    console.log(selectedElements)
-                }
-                if(event.ctrlKey && event.type==='click'){
-                    selected = event.target;
-                    if(selectedElements.includes(selected)){
-                        removingStylesAndEl(selectedElements, selected);
-                        return;
-                    }
-                    if(!selectedElements.includes(selected)){
-                        selectedElements.push(selected);
-                    }
-                }
-                if(!event.ctrlKey && !event.shiftKey) {
-                    selectedElements.forEach((currentEl)=>{
-                        currentEl.classList.remove('selected--item');
-                    });
-                    selectedElements = [];
-                }
-                if (selected) {
-                    removingStylesAndEl(selectedElements, selected);
-                }
-                selected = event.target;
-                selectedElements.push(selected);
-                event.target.classList.add('selected--item');
-
-                console.log(selectedElements)
-
-                indexSelectedEl = [...list].indexOf(selected);
-            }
-
-
-            function removingStylesAndEl(array, el) {
-                const index  = array.indexOf(el);
-                array.splice(index,1);
-                el.classList.remove('selected--item');
-            }
-
             this.root.addEventListener(event, setMouseOverStyle);
             this.root.addEventListener('click', setLiClickedStyle);
         }
 
-        _getSelected(){
+        _getSelected() {
             const selected = this.root.querySelectorAll('.selected--item');
-            const res = [...selected].map((currentSelectedEl)=>currentSelectedEl.innerText);
+            const res = [...selected].map((currentSelectedEl) => currentSelectedEl.innerText);
             return alert(res);
         }
-        getSelectedItems(){
+
+        getSelectedItems() {
             this._getSelected();
         }
     }
@@ -143,9 +142,14 @@
     const listSelect = new ListSelected({
         root: document.querySelector('.first')
     });
+    const btn = document.querySelector('.getSelected');
+    btn.addEventListener('click', listSelect.getSelectedItems.bind(listSelect));
 
-    const btn  = document.querySelector('.getSelected');
-    btn.addEventListener('click',listSelect.getSelectedItems.bind(listSelect));
+    const listSelect2 = new ListSelected({
+        root: document.querySelector('.second')
+    });
+    const btn1 = document.querySelector('.getSelected1');
+    btn1.addEventListener('click', listSelect2.getSelectedItems.bind(listSelect2));
 
 </script>
 </body>
